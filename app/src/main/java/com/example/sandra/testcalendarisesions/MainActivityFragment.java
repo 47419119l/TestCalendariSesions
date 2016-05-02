@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -33,6 +34,11 @@ public class MainActivityFragment extends Fragment {
     private TextView nom ;
     private TextView data ;
     private TextView monitor;
+    private ImageButton step;
+    private ImageButton bcombat;
+    private ImageButton bpump;
+    private ImageButton fitnes;
+    private ImageButton zumba;
     private Spinner spinner;
     private ImageView fotsesio;
     ArrayList<Sesion> items;
@@ -48,14 +54,64 @@ public class MainActivityFragment extends Fragment {
         sesionRef = ref.child("Sesions");
         listSesiones = (ListView)rootView.findViewById(R.id.listSesions);
         spinner = (Spinner)rootView.findViewById(R.id.DatesSesions);
+
+        zumba =(ImageButton)rootView.findViewById(R.id.sesio1);
+        bcombat=(ImageButton)rootView.findViewById(R.id.sesio2);
+        step=(ImageButton)rootView.findViewById(R.id.sesio3);
+        bpump =(ImageButton)rootView.findViewById(R.id.sesio4);
+        fitnes=(ImageButton)rootView.findViewById(R.id.sesio5);
+
         configuracioLlistaMaquines();
         configuracioSpinner();
-
+        configuraciobuttons();
         items = new ArrayList<Sesion>();
 
 
 
         return rootView;
+    }
+
+    /**
+     * Metode per configurar els bottons de sesions.
+     */
+    private void configuraciobuttons(){
+        zumba.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                items.clear();
+                configuracioLlistaMaquinesSesions("Zumba");
+            }
+        });
+        bcombat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                items.clear();
+                configuracioLlistaMaquinesSesions("Body Combat");
+            }
+        });
+        step.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                items.clear();
+                configuracioLlistaMaquinesSesions("Step");
+            }
+        });
+        bpump.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                items.clear();
+                configuracioLlistaMaquinesSesions("Body pump");
+            }
+        });
+
+        fitnes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                items.clear();
+                configuracioLlistaMaquinesSesions("Fitness");
+            }
+        });
+
     }
 
     /**
@@ -157,6 +213,5 @@ public class MainActivityFragment extends Fragment {
 
 
     }
-
 
 }
