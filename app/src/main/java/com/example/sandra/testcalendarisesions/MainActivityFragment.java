@@ -130,9 +130,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
 
     private void configDataStart(){
         Date date = new Date();
-        SimpleDateFormat dt1 = new SimpleDateFormat("dd-mm-yyyyy");
-        System.out.println(dt1.format(date.getDate()));
-        dateText.setText(dt1.format(date.getDate()).toString());
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd-MM-yyyy");
+        dateText.setText(dt1.format(date).toString());
     }
     /**
      * Metode per llistar TOTES les sesions realitzades al centre.
