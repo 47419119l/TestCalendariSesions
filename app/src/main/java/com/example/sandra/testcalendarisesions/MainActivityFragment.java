@@ -33,11 +33,13 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
     private Firebase sesionRef, ref;
     private ListView listSesiones;
     private TextView nom , data, monitor, dateText;
-    private ImageButton step,bcombat, bpump,fitnes,zumba;
+    private ImageButton step,bcombat, bpump,fitnes,zumba, btnDate;
     private ImageView fotsesio;
-    private ImageButton btnDate;
-    ArrayList<Sesion> items;
+    private boolean sesio =false;
+    private String sesioNom ="";
+    private ArrayList<Sesion> items;
     private int dia , mes , any;
+
     public MainActivityFragment() {
     }
     @Override
@@ -73,7 +75,7 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
         dialogoFecha.setOnDateSetListener(this);
         Bundle args = new Bundle();
         //Enviem la data actual al picker.
-        args.putLong("fecha",data.getTime());
+        args.putLong("fecha", data.getTime());
         dialogoFecha.setArguments(args);
         //
         dialogoFecha.show(getActivity().getSupportFragmentManager(), "selectorFecha");
@@ -89,6 +91,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
             public void onClick(View v) {
                 items.clear();
                 configuracioLlistaMaquinesSesions("Zumba");
+                sesio=true;
+                sesioNom="Zumba";
             }
         });
         bcombat.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +100,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
             public void onClick(View v) {
                 items.clear();
                 configuracioLlistaMaquinesSesions("Body Combat");
+                sesio = true;
+                sesioNom = "Body Combat";
             }
         });
         step.setOnClickListener(new View.OnClickListener() {
@@ -103,6 +109,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
             public void onClick(View v) {
                 items.clear();
                 configuracioLlistaMaquinesSesions("Step");
+                sesio=true;
+                sesioNom="Step";
             }
         });
         bpump.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +118,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
             public void onClick(View v) {
                 items.clear();
                 configuracioLlistaMaquinesSesions("Body pump");
+                sesio = true;
+                sesioNom = "Body pump";
             }
         });
 
@@ -118,6 +128,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
             public void onClick(View v) {
                 items.clear();
                 configuracioLlistaMaquinesSesions("Fitness");
+                sesio = true;
+                sesioNom = "Fitness";
             }
         });
         btnDate.setOnClickListener(new View.OnClickListener() {
@@ -235,8 +247,55 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
         any = year;
         dia = dayOfMonth;
         mes = monthOfYear+1;
-        dateText.setText(dia+"/"+mes+"/"+any);
+        dateText.setText(dia + "/" + mes + "/" + any);
+        System.out.println(dateText.getText().toString());
+        items.clear();
+        consultarPerData(formatearData());
+    }
+    private String formatearData(){
+        String time = "%02d/%02d/%04d";
+        int[] times = {00, 00, 0000};
+        times[0]=dia;
+        times[1]=mes;
+        times[2]=any;
+       return time.format(time, times[0], times[1], times[2]);
+    }
+
+    public void consultarPerData(String data){
+        System.out.println(data);
+        Query queryRef = sesionRef.orderByChild("data").equalTo(data);
+
+        queryRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
+                Sesion a = snapshot.getValue(Sesion.class);
+                items.add(a);
+                System.out.println("" + items.size() + a.getNom());
+                ArrayListAdapterSesions itemsAdapter = new ArrayListAdapterSesions(getContext(), R.layout.list_sesions_calendari, items);
+                listSesiones.setAdapter(itemsAdapter);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
 
 
+        });
     }
 }
