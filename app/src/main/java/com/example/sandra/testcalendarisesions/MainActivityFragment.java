@@ -1,17 +1,15 @@
 package com.example.sandra.testcalendarisesions;
 
+import android.app.DatePickerDialog;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.firebase.client.ChildEventListener;
@@ -23,11 +21,14 @@ import com.firebase.ui.FirebaseListAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+
+public class MainActivityFragment extends Fragment implements DatePickerDialog.OnDateSetListener {
     private Firebase sesionRef;
     private  Firebase ref;
     private ListView listSesiones;
@@ -39,36 +40,75 @@ public class MainActivityFragment extends Fragment {
     private ImageButton bpump;
     private ImageButton fitnes;
     private ImageButton zumba;
-    private Spinner spinner;
     private ImageView fotsesio;
+    private ImageButton btnDate;
     ArrayList<Sesion> items;
+    private int dia , mes , any;
+    private static final int ID_DIALOG =0;
+    private static DatePickerDialog.OnDateSetListener selectDate;
     public MainActivityFragment() {
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         Firebase.setAndroidContext(getContext());
         ref = new Firebase("https://testgimmapp.firebaseio.com/");
         sesionRef = ref.child("Sesions");
         listSesiones = (ListView)rootView.findViewById(R.id.listSesions);
-        spinner = (Spinner)rootView.findViewById(R.id.DatesSesions);
+     //   spinner = (Spinner)rootView.findViewById(R.id.DatesSesions);
 
         zumba =(ImageButton)rootView.findViewById(R.id.sesio1);
         bcombat=(ImageButton)rootView.findViewById(R.id.sesio2);
         step=(ImageButton)rootView.findViewById(R.id.sesio3);
         bpump =(ImageButton)rootView.findViewById(R.id.sesio4);
         fitnes=(ImageButton)rootView.findViewById(R.id.sesio5);
+        btnDate=(ImageButton)rootView.findViewById(R.id.dataPic);
 
         configuracioLlistaMaquines();
-        configuracioSpinner();
+      //  configuracioSpinner();
         configuraciobuttons();
         items = new ArrayList<Sesion>();
 
-
+        selectDate = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                any = year;
+                dia = dayOfMonth;
+                mes = monthOfYear;
+            }
+        };
+         btnDate.setOnClickListener(new View.OnClickListener() {
+             public void onClick(View view) {
+                 cambiarFecha();
+             }
+         });
 
         return rootView;
+    }
+
+    /**
+     * Metode que crida a el dialeg del picker.
+     */
+    public void cambiarFecha() {
+        Date data = new Date();
+        DateDialog dialogoFecha = new DateDialog();
+        dialogoFecha.setOnDateSetListener(this);
+        Bundle args = new Bundle();
+        //Enviem la data actual al picker.
+        args.putLong("fecha",data.getTime());
+        dialogoFecha.setArguments(args);
+        //
+        dialogoFecha.show(getActivity().getSupportFragmentManager(), "selectorFecha");
+
+    }
+
+    private void configCalendar(){
+        Calendar calendari = Calendar.getInstance();
+        dia = calendari.get(Calendar.DAY_OF_MONTH);
+        mes = calendari.get(Calendar.MONTH);
+        any = calendari.get(Calendar.YEAR);
     }
 
     /**
@@ -117,6 +157,7 @@ public class MainActivityFragment extends Fragment {
     /**
      * Metode per configurar el Spinner de la pantalla.
      */
+    /*
     private void configuracioSpinner(){
 
         String[] valores = {"10/05/2016","15/05/2016","19/05/2016","27/05/2016"};
@@ -179,34 +220,34 @@ public class MainActivityFragment extends Fragment {
 
 
         queryRef.addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot snapshot, String previousChild) {
-                    Sesion a = snapshot.getValue(Sesion.class);
-                    items.add(a);
-                    System.out.println("" + items.size() + a.getNom());
-                    ArrayListAdapterSesions itemsAdapter = new ArrayListAdapterSesions(getContext(), R.layout.list_sesions_calendari, items);
-                    listSesiones.setAdapter(itemsAdapter);
-                }
+            @Override
+            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
+                Sesion a = snapshot.getValue(Sesion.class);
+                items.add(a);
+                System.out.println("" + items.size() + a.getNom());
+                ArrayListAdapterSesions itemsAdapter = new ArrayListAdapterSesions(getContext(), R.layout.list_sesions_calendari, items);
+                listSesiones.setAdapter(itemsAdapter);
+            }
 
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                }
+            }
 
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-                }
+            }
 
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-                }
+            }
 
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
 
-                }
+            }
 
 
         });
@@ -214,4 +255,12 @@ public class MainActivityFragment extends Fragment {
 
     }
 
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        any = year;
+        dia = dayOfMonth;
+        mes = monthOfYear+1;
+        System.out.println("-------------------------"+dia+"/"+mes+"/"+any);
+    }
 }
