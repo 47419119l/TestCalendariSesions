@@ -20,6 +20,7 @@ import com.firebase.client.Query;
 import com.firebase.ui.FirebaseListAdapter;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,36 +30,26 @@ import java.util.Date;
  */
 
 public class MainActivityFragment extends Fragment implements DatePickerDialog.OnDateSetListener {
-    private Firebase sesionRef;
-    private  Firebase ref;
+    private Firebase sesionRef, ref;
     private ListView listSesiones;
-    private TextView nom ;
-    private TextView data ;
-    private TextView monitor;
-    private ImageButton step;
-    private ImageButton bcombat;
-    private ImageButton bpump;
-    private ImageButton fitnes;
-    private ImageButton zumba;
+    private TextView nom , data, monitor, dateText;
+    private ImageButton step,bcombat, bpump,fitnes,zumba;
     private ImageView fotsesio;
     private ImageButton btnDate;
     ArrayList<Sesion> items;
     private int dia , mes , any;
-    private static final int ID_DIALOG =0;
-    private static DatePickerDialog.OnDateSetListener selectDate;
     public MainActivityFragment() {
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
+        items = new ArrayList<Sesion>();
         Firebase.setAndroidContext(getContext());
         ref = new Firebase("https://testgimmapp.firebaseio.com/");
         sesionRef = ref.child("Sesions");
         listSesiones = (ListView)rootView.findViewById(R.id.listSesions);
-     //   spinner = (Spinner)rootView.findViewById(R.id.DatesSesions);
-
+        dateText = (TextView)rootView.findViewById(R.id.dateText);
         zumba =(ImageButton)rootView.findViewById(R.id.sesio1);
         bcombat=(ImageButton)rootView.findViewById(R.id.sesio2);
         step=(ImageButton)rootView.findViewById(R.id.sesio3);
@@ -67,23 +58,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
         btnDate=(ImageButton)rootView.findViewById(R.id.dataPic);
 
         configuracioLlistaMaquines();
-      //  configuracioSpinner();
         configuraciobuttons();
-        items = new ArrayList<Sesion>();
-
-        selectDate = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                any = year;
-                dia = dayOfMonth;
-                mes = monthOfYear;
-            }
-        };
-         btnDate.setOnClickListener(new View.OnClickListener() {
-             public void onClick(View view) {
-                 cambiarFecha();
-             }
-         });
+        configDataStart();
 
         return rootView;
     }
@@ -91,7 +67,7 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
     /**
      * Metode que crida a el dialeg del picker.
      */
-    public void cambiarFecha() {
+    public void canviarData() {
         Date data = new Date();
         DateDialog dialogoFecha = new DateDialog();
         dialogoFecha.setOnDateSetListener(this);
@@ -104,15 +80,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
 
     }
 
-    private void configCalendar(){
-        Calendar calendari = Calendar.getInstance();
-        dia = calendari.get(Calendar.DAY_OF_MONTH);
-        mes = calendari.get(Calendar.MONTH);
-        any = calendari.get(Calendar.YEAR);
-    }
-
     /**
-     * Metode per configurar els bottons de sesions.
+     * Metode per configurar els butons.
      */
     private void configuraciobuttons(){
         zumba.setOnClickListener(new View.OnClickListener() {
@@ -151,22 +120,22 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
                 configuracioLlistaMaquinesSesions("Fitness");
             }
         });
+        btnDate.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                canviarData();
+            }
+        });
 
     }
 
-    /**
-     * Metode per configurar el Spinner de la pantalla.
-     */
-    /*
-    private void configuracioSpinner(){
-
-        String[] valores = {"10/05/2016","15/05/2016","19/05/2016","27/05/2016"};
-
-        spinner.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, valores));
+    private void configDataStart(){
+        Date date = new Date();
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd-mm-yyyyy");
+        System.out.println(dt1.format(date.getDate()));
+        dateText.setText(dt1.format(date.getDate()).toString());
     }
-
     /**
-     * Metode per llistar totes les sesions realitzades al centre.
+     * Metode per llistar TOTES les sesions realitzades al centre.
      */
     private void configuracioLlistaMaquines(){
         FirebaseListAdapter adapter = new FirebaseListAdapter<Sesion>(getActivity(), Sesion.class, R.layout.list_sesions_calendari, sesionRef) {
@@ -255,12 +224,20 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
 
     }
 
-
+    /**
+     * Metode que retorna les dades extretes del DateDialog.
+     * @param view Dialog Data picker
+     * @param year Any sel·leccionat.
+     * @param monthOfYear Mes del any sel·leccionat.
+     * @param dayOfMonth Dia del mes sel·leccionat.
+     */
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
         any = year;
         dia = dayOfMonth;
         mes = monthOfYear+1;
-        System.out.println("-------------------------"+dia+"/"+mes+"/"+any);
+        dateText.setText(dia+"/"+mes+"/"+any);
+
+
     }
 }
