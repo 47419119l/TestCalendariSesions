@@ -24,6 +24,7 @@ import java.util.Date;
 
 
 public class MainActivityFragment extends Fragment implements DatePickerDialog.OnDateSetListener {
+
     private Firebase sesionRef, ref;
     private ListView listSesiones;
     private TextView nom , data, monitor, dateText;
@@ -177,6 +178,8 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
      * Metode per llistar TOTES les sesions realitzades al centre.
      */
     private void configuracioLlistaMaquines(){
+        databo =false;
+        sesio=false;
         FirebaseListAdapter adapter = new FirebaseListAdapter<Sesion>(getActivity(), Sesion.class, R.layout.list_sesions_calendari, sesionRef) {
                 @Override
             protected void populateView(View v, Sesion info, int position) {
