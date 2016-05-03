@@ -11,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -19,15 +18,10 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.ui.FirebaseListAdapter;
 import com.squareup.picasso.Picasso;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 
 public class MainActivityFragment extends Fragment implements DatePickerDialog.OnDateSetListener {
     private Firebase sesionRef, ref;
@@ -35,21 +29,29 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
     private TextView nom , data, monitor, dateText;
     private ImageButton step,bcombat, bpump,fitnes,zumba, btnDate;
     private ImageView fotsesio;
-    private boolean sesio =false;
+    private boolean sesio =false ,databo = false;
     private String sesioNom ="";
     private ArrayList<Sesion> items;
     private int dia , mes , any;
 
     public MainActivityFragment() {
     }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         items = new ArrayList<Sesion>();
+        /**
+         * Configuració Firebase
+         */
         Firebase.setAndroidContext(getContext());
         ref = new Firebase("https://testgimmapp.firebaseio.com/");
         sesionRef = ref.child("Sesions");
+        /**
+         * Instanciem obejctes
+         */
         listSesiones = (ListView)rootView.findViewById(R.id.listSesions);
         dateText = (TextView)rootView.findViewById(R.id.dateText);
         zumba =(ImageButton)rootView.findViewById(R.id.sesio1);
@@ -65,7 +67,6 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
 
         return rootView;
     }
-
     /**
      * Metode que crida a el dialeg del picker.
      */
@@ -81,7 +82,6 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
         dialogoFecha.show(getActivity().getSupportFragmentManager(), "selectorFecha");
 
     }
-
     /**
      * Metode per configurar els butons.
      */
@@ -89,47 +89,72 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
         zumba.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                items.clear();
-                configuracioLlistaMaquinesSesions("Zumba");
-                sesio=true;
                 sesioNom="Zumba";
+                if(databo){
+                    consultarPerSesioData();
+                }else{
+                    items.clear();
+                    configuracioLlistaMaquinesSesions("Zumba");
+                    sesio=true;
+                }
+
+
             }
         });
         bcombat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                items.clear();
-                configuracioLlistaMaquinesSesions("Body Combat");
-                sesio = true;
                 sesioNom = "Body Combat";
+                if (databo) {
+                    consultarPerSesioData();
+                } else {
+                    items.clear();
+                    configuracioLlistaMaquinesSesions("Body Combat");
+                    sesio = true;
+                }
+
             }
         });
         step.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                items.clear();
-                configuracioLlistaMaquinesSesions("Step");
-                sesio=true;
                 sesioNom="Step";
+                if(databo){
+                    consultarPerSesioData();
+                }else {
+                    items.clear();
+                    configuracioLlistaMaquinesSesions("Step");
+                    sesio = true;
+                }
+
             }
         });
         bpump.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                items.clear();
-                configuracioLlistaMaquinesSesions("Body pump");
-                sesio = true;
                 sesioNom = "Body pump";
+                if (databo) {
+                    consultarPerSesioData();
+                } else {
+                    items.clear();
+                    configuracioLlistaMaquinesSesions("Body pump");
+                    sesio = true;
+                }
             }
         });
 
         fitnes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                items.clear();
-                configuracioLlistaMaquinesSesions("Fitness");
-                sesio = true;
                 sesioNom = "Fitness";
+                if (databo) {
+                    consultarPerSesioData();
+                } else {
+                    items.clear();
+                    configuracioLlistaMaquinesSesions("Fitness");
+                    sesio = true;
+                }
+
             }
         });
         btnDate.setOnClickListener(new View.OnClickListener() {
@@ -140,6 +165,9 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
 
     }
 
+    /**
+     * Configurar data actual al iniciar.
+     */
     private void configDataStart(){
         Date date = new Date();
         SimpleDateFormat dt1 = new SimpleDateFormat("dd-MM-yyyy");
@@ -244,6 +272,7 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
      */
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        databo=true;
         any = year;
         dia = dayOfMonth;
         mes = monthOfYear+1;
@@ -320,6 +349,20 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
         ArrayList<Sesion>itemsPerDataSesio = new ArrayList<>();
         for(int i =0; i< items.size(); i++){
             if(items.get(i).getData().equals(data)){
+                itemsPerDataSesio.add(items.get(i));
+            }
+        }
+        ArrayListAdapterSesions itemsAdapter = new ArrayListAdapterSesions(getContext(), R.layout.list_sesions_calendari, itemsPerDataSesio);
+        listSesiones.setAdapter(itemsAdapter);
+    }
+
+    /**
+     * Metode per filtrar per dates la llista ja existent de sesions
+     */
+    public void consultarPerSesioData(){
+        ArrayList<Sesion>itemsPerDataSesio = new ArrayList<>();
+        for(int i =0; i< items.size(); i++){
+            if(items.get(i).getNom().equals(sesioNom)){
                 itemsPerDataSesio.add(items.get(i));
             }
         }

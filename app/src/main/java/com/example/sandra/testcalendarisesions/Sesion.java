@@ -12,11 +12,9 @@ public class Sesion {
     private int nAsesitents;
     private String monitor;
     private String nom;
-
     public Sesion(){
 
     }
-
     public String getId() {
         return id;
     }
@@ -40,7 +38,6 @@ public class Sesion {
     public void setHora(String hora) {
         this.hora = hora;
     }
-
 
     public String getMonitor() {
         return monitor;
