@@ -249,9 +249,18 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
         mes = monthOfYear+1;
         dateText.setText(dia + "/" + mes + "/" + any);
         System.out.println(dateText.getText().toString());
-        items.clear();
-        consultarPerData(formatearData());
+        if(!sesio) {
+            items.clear();
+            consultarPerData(formatearData());
+        }else{
+            consultarPerDataSesio(formatearData());
+        }
     }
+
+    /**
+     * Formateja la data al format adequat per fer la consulta
+     * @return String amb data format 02/03/2016 (dd/MM/yyyy)
+     */
     private String formatearData(){
         String time = "%02d/%02d/%04d";
         int[] times = {00, 00, 0000};
@@ -261,8 +270,12 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
        return time.format(time, times[0], times[1], times[2]);
     }
 
+    /**
+     * Metode per consultar sesions per dates
+     * @param data data format (dd/MM/yyyy)
+     */
     public void consultarPerData(String data){
-        System.out.println(data);
+
         Query queryRef = sesionRef.orderByChild("data").equalTo(data);
 
         queryRef.addChildEventListener(new ChildEventListener() {
@@ -297,5 +310,20 @@ public class MainActivityFragment extends Fragment implements DatePickerDialog.O
 
 
         });
+    }
+
+    /**
+     * Metode per filtrar per dates la llista ja existent de sesions
+     * @param data
+     */
+    public void consultarPerDataSesio(String data){
+        ArrayList<Sesion>itemsPerDataSesio = new ArrayList<>();
+        for(int i =0; i< items.size(); i++){
+            if(items.get(i).getData().equals(data)){
+                itemsPerDataSesio.add(items.get(i));
+            }
+        }
+        ArrayListAdapterSesions itemsAdapter = new ArrayListAdapterSesions(getContext(), R.layout.list_sesions_calendari, itemsPerDataSesio);
+        listSesiones.setAdapter(itemsAdapter);
     }
 }
